@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  **/
 public class BreakerCoolToolPanel implements CoolToolPanel {
 
-	public static String agentJar = "CoolRequestAgent.jar";
+	public static String agentJar = "cool-request-agent.jar";
 
 	@Override
 	public JPanel createPanel() {
