@@ -8,6 +8,7 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.util.Iterator;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
@@ -25,6 +26,8 @@ public class MessageServer {
 
 	private Selector selector;
 
+	private static int port = 9527;
+
 	public void setCallback(Function<Integer, Boolean> callback) {
 		this.callback = callback;
 	}
@@ -40,7 +43,33 @@ public class MessageServer {
 		return messageServer;
 	}
 
+	public static void randomPort() {
+		int min = 10001;
+		int max = 65535;
+		int maxTries = 1000;
+
+		int randomPort = 9527;
+		try (DatagramChannel datagramChannel = DatagramChannel.open()) {
+			Random random = new Random();
+			for (int i = 0; i < maxTries; i++) {
+				try {
+					randomPort = random.nextInt(max - min + 1) + min;
+					datagramChannel.bind(new InetSocketAddress("127.0.0.1", randomPort));
+					break;
+				} catch (IOException ignored) {}
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		port = randomPort;
+	}
+
+	public static int getPort() {
+		return port;
+	}
+
 	public void start() {
+		randomPort();
 		Thread thread = new Thread(() -> {
 			if (!running.compareAndSet(false, true)) {
 				return;
@@ -48,7 +77,7 @@ public class MessageServer {
 			try (DatagramChannel datagramChannel = DatagramChannel.open();
 			     Selector selector = Selector.open()) {
 				this.selector = selector;
-				SocketAddress address = new InetSocketAddress("127.0.0.1", 9527);
+				SocketAddress address = new InetSocketAddress("127.0.0.1", port);
 				datagramChannel.bind(address);
 				datagramChannel.configureBlocking(false);
 				datagramChannel.register(selector, SelectionKey.OP_READ, null);

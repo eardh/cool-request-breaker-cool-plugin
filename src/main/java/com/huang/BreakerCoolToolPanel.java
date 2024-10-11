@@ -93,9 +93,10 @@ public class BreakerCoolToolPanel implements CoolToolPanel {
 			if (!"com.intellij.idea.Main".equals(descriptor.displayName())) {
 				continue;
 			}
+			int port = MessageServer.getPort();
 			try {
 				VirtualMachine virtualMachine = VirtualMachine.attach(descriptor);
-				virtualMachine.loadAgent(file.getAbsolutePath());
+				virtualMachine.loadAgent(file.getAbsolutePath(), "port=" + port);
 				virtualMachine.detach();
 			} catch (AttachNotSupportedException | IOException | AgentLoadException |
 			         AgentInitializationException ex) {
