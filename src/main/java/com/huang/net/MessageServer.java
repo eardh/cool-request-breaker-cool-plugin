@@ -43,7 +43,7 @@ public class MessageServer {
 		return messageServer;
 	}
 
-	public static void randomPort() {
+	public static int randomPort() {
 		int min = 10001;
 		int max = 65535;
 		int maxTries = 1000;
@@ -61,7 +61,7 @@ public class MessageServer {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		port = randomPort;
+		return randomPort;
 	}
 
 	public static int getPort() {
@@ -69,11 +69,11 @@ public class MessageServer {
 	}
 
 	public void start() {
-		randomPort();
 		Thread thread = new Thread(() -> {
 			if (!running.compareAndSet(false, true)) {
 				return;
 			}
+			port = randomPort();
 			try (DatagramChannel datagramChannel = DatagramChannel.open();
 			     Selector selector = Selector.open()) {
 				this.selector = selector;
