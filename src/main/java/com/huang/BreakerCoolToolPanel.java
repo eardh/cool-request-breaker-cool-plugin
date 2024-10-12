@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -71,7 +70,7 @@ public class BreakerCoolToolPanel implements CoolToolPanel {
 		if (BreakContext.newBreakContext().getCracked().get()) {
 			return;
 		}
-		copyFile(getClass().getResource("/breakLib/" + agentJar));
+		copyFile("/breakLib/" + agentJar);
 		MessageServer.getServer().start();
 	}
 
@@ -109,12 +108,12 @@ public class BreakerCoolToolPanel implements CoolToolPanel {
 		return new File(System.getProperty("java.io.tmpdir"), fileName);
 	}
 
-	private File copyFile(URL url) {
+	private void copyFile(String sourcePath) {
 		File copyFile = getTempLibFile(agentJar);
 		if (copyFile.exists() && !copyFile.delete()) {
-			return copyFile;
+			return;
 		}
-		try (InputStream inputStream = url.openStream();
+		try (InputStream inputStream = getClass().getResourceAsStream(sourcePath);
 		     FileOutputStream outputStream = new FileOutputStream(copyFile)) {
 			byte[] buffer = new byte[10240];
 			int length;
@@ -124,7 +123,6 @@ public class BreakerCoolToolPanel implements CoolToolPanel {
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
-		return copyFile;
 	}
 
 }
